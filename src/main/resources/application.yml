@@ -1,0 +1,27 @@
+server:
+  servlet:
+    context-path: "/security"
+
+resources:
+  base:
+    location: "src/main/resources/"
+
+new-capture:
+    file-name: "new_capture"
+    annotated:
+      file-name: "test_new_capture_annotated"
+
+yolo:
+  person-detector:
+    base:
+      location: "src/main/resources/yolo/"
+    threshold:
+      confidence: 0.5
+      non_maxima_suppression: 0.3
+
+spring:
+  cloud:
+    stream:
+      bindings:
+        output:
+          destination: updated.security-config

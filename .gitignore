@@ -1,0 +1,5 @@
+**/resources/yolo/processed_image.jpg
+**/resources/yolo/yolo-coco
+**/.idea
+/target
+*.iml
