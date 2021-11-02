@@ -11,7 +11,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpStatus;
-import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -63,20 +63,20 @@ class SecurityControllerObjectDetectionIntegrationTest {
     @Value("${new-capture.annotated.file-name}")
     private String newCaptureAnnotatedFileName;
 
-    @DisplayName("Given a valid multipart file containing image of a person and security status is armed" +
+    @DisplayName("Given a valid base64 encoded image of a person and security status is armed" +
             "when post to the /security-check endpoint is made " +
             "then the image file gets saved at the expected location and detections performed and security config is updated.")
     @Test
     void canSaveAnnotatedImageAndUpdateSecurityConfigToBreach() throws Exception {
-        MockMultipartFile image = TestUtils.createMockMultipartImageFile();
+        String base64EncodedImage = testUtils.createBase64EncodedImageFromImageFile(new File("src/test/resources/test_new_capture_person.jpeg"));
         SecurityConfig securityConfig = new SecurityConfig(SecurityStatus.SAFE, SecurityState.ARMED);
         testUtils.createSecurityConfigFile(securityConfig);
 
         mockMvc.perform(
-                multipart("/security-check").file(image)).
+                post("/security-check").content(base64EncodedImage)).
                 andExpect(status().isAccepted());
 
-        testUtils.assertThatExpectedTempImageFileCreated(image);
+        testUtils.assertThatExpectedTempImageFileCreated(base64EncodedImage);
         File expectedProcessedImage = new File(String.format("%s/%s.jpeg", resourcesBaseLocation, newCaptureAnnotatedFileName));
         assertTrue(expectedProcessedImage.exists());
 
@@ -89,20 +89,20 @@ class SecurityControllerObjectDetectionIntegrationTest {
         testUtils.deleteSecurityConfigFile();
     }
 
-    @DisplayName("Given a valid multipart file containing image of a person and security status is disarmed" +
+    @DisplayName("Given a valid base64 encoded image of a person and security status is disarmed" +
             "when post to the /security-check endpoint is made " +
             "then the image file gets saved at the expected location and detections performed but security config is not updated.")
     @Test
     void doesNotSaveAnnotatedImageAndDoesNotUpdateSecurityConfig() throws Exception {
-        MockMultipartFile image = TestUtils.createMockMultipartImageFile();
+        String base64EncodedImage = testUtils.createBase64EncodedImageFromImageFile(new File("src/test/resources/test_new_capture_person.jpeg"));
         SecurityConfig securityConfig = new SecurityConfig(SecurityStatus.SAFE, SecurityState.DISARMED);
         testUtils.createSecurityConfigFile(securityConfig);
 
         mockMvc.perform(
-                multipart("/security-check").file(image)).
+                post("/security-check").content(base64EncodedImage)).
                 andExpect(status().isAccepted());
 
-        testUtils.assertThatExpectedTempImageFileCreated(image);
+        testUtils.assertThatExpectedTempImageFileCreated(base64EncodedImage);
         File expectedProcessedImage = new File(String.format("%s/%s.jpeg", resourcesBaseLocation, newCaptureAnnotatedFileName));
         assertTrue(expectedProcessedImage.exists());
         testUtils.assertThatExpectedSecurityConfigJsonFileSaved(securityConfig); // ensure no update is made to the security config
@@ -118,12 +118,12 @@ class SecurityControllerObjectDetectionIntegrationTest {
             "then return expected Zalando problem")
     @Test
     void canReturnZalandoProblemIfSaveImageMethodThrowsIoException() throws Exception {
-        MockMultipartFile image = TestUtils.createMockMultipartImageFile();
+        String base64EncodedImage = testUtils.createBase64EncodedImageFromImageFile(new File("src/test/resources/test_new_capture_person.jpeg"));
 
         try (MockedStatic<FileUtils> mockFileUtils = mockStatic(FileUtils.class)) {
             mockFileUtils.when(() -> FileUtils.writeByteArrayToFile(any(), any())).thenThrow(new IOException("I am an IOException"));
             MvcResult mvcResult = mockMvc.perform(
-                    multipart("/security-check").file(image)).
+                    post("/security-check").content(base64EncodedImage)).
                     andExpect(status().isInternalServerError())
                     .andReturn();
             String actualZalandoProblemJsonString = mvcResult.getResponse().getContentAsString();
@@ -159,13 +159,13 @@ class SecurityControllerObjectDetectionIntegrationTest {
 
     @Test
     void canReturnZalandoProblemIfValidatePythonProcessMethodThrowsPersonDetectorException() throws Exception{
-        MockMultipartFile image = TestUtils.createMockMultipartImageFile();
-        doNothing().when(personDetectorService).runPersonDetectorProcess(image.getBytes());
+        String base64EncodedImage = testUtils.createBase64EncodedImageFromImageFile(new File("src/test/resources/test_new_capture_person.jpeg"));
+        doNothing().when(personDetectorService).runPersonDetectorProcess(base64EncodedImage.getBytes());
 
         try (MockedStatic<ValidationUtil> mockValidationUtil = mockStatic(ValidationUtil.class)) {
             mockValidationUtil.when(() -> ValidationUtil.validateProcess(any())).thenThrow(new PersonDetectorException("I am a PersonDetectorException."));
             MvcResult mvcResult = mockMvc.perform(
-                    multipart("/security-check").file(image)).
+                    post("/security-check").content(base64EncodedImage)).
                     andExpect(status().isInternalServerError())
                     .andReturn();
             String actualZalandoProblemJsonString = mvcResult.getResponse().getContentAsString();
@@ -180,13 +180,13 @@ class SecurityControllerObjectDetectionIntegrationTest {
 
     @Test
     void canReturnZalandoProblemIfValidatePythonProcessLogsMethodThrowsPersonDetectorException() throws Exception{
-        MockMultipartFile image = TestUtils.createMockMultipartImageFile();
+        String image = testUtils.createBase64EncodedImageFromImageFile(new File("src/test/resources/test_new_capture_person.jpeg"));
 
         try (MockedStatic<ValidationUtil> mockValidationUtil = mockStatic(ValidationUtil.class)) {
             mockValidationUtil.when(() -> ValidationUtil.validateProcessLogs(any())).thenThrow(new PersonDetectorException("I am a PersonDetectorException."));
             MvcResult mvcResult = mockMvc.perform(
-                    multipart("/security-check").file(image)).
-                    andExpect(status().isInternalServerError())
+                    post("/security-check").content(image))
+                    .andExpect(status().isInternalServerError())
                     .andReturn();
             String actualZalandoProblemJsonString = mvcResult.getResponse().getContentAsString();
             Problem expectedZalandoProblem = createExpectedZalandoProblem("I am a PersonDetectorException.");

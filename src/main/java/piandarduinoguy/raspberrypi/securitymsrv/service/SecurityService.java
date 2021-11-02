@@ -1,7 +1,7 @@
 package piandarduinoguy.raspberrypi.securitymsrv.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
+import java.util.Base64;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +69,7 @@ public class SecurityService {
         File annotatedImageFile = new File(String.format("%s/%s.jpeg", resourcesBaseLocation, newCaptureAnnotatedFileName));
         ValidationUtil.validateImageFile(annotatedImageFile);
         try {
-            return Base64.encode(FileUtils.readFileToByteArray(annotatedImageFile));
+            return Base64.getEncoder().encodeToString(FileUtils.readFileToByteArray(annotatedImageFile));
         } catch (IOException ioException) {
             throw new ImageFileException(String.format(
                     "The image %s could not be encoded to base64 string due to an IOException being thrown with message \"%s\".",

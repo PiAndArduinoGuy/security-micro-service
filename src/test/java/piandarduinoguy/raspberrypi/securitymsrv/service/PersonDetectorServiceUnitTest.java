@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import piandarduinoguy.raspberrypi.securitymsrv.TestUtils;
@@ -14,6 +13,7 @@ import piandarduinoguy.raspberrypi.securitymsrv.exception.ImageFileException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -48,11 +48,12 @@ class PersonDetectorServiceUnitTest {
             "when saveImage called " +
             "then image is saved as expected.")
     void canSaveUploadedImageToBeProcessed() throws Exception {
-        byte[] imageBytes = TestUtils.createMockMultipartImageFile().getBytes();
+        String base64EncodedImage = testUtils.createBase64EncodedImageFromImageFile(new File("src/test/resources/test_new_capture_person.jpeg"));
+        byte[] imageBytes = Base64.getDecoder().decode(base64EncodedImage);
 
         personDetectorService.runPersonDetectorProcess(imageBytes);
 
-        testUtils.assertThatExpectedTempImageFileCreated(imageBytes);
+        testUtils.assertThatExpectedTempImageFileCreated(base64EncodedImage);
         testUtils.deleteTestTemporaryImageFile();
     }
 
@@ -61,7 +62,8 @@ class PersonDetectorServiceUnitTest {
             "when saveImage called " +
             "then an ImageFileException is thrown.")
     void canThrowImageFileExceptionWhenSaveImageCalled() throws Exception {
-        byte[] imageBytes = TestUtils.createMockMultipartImageFile().getBytes();
+        String base64EncodedImage = testUtils.createBase64EncodedImageFromImageFile(new File("src/test/resources/test_new_capture_person.jpeg"));
+        byte[] imageBytes = Base64.getDecoder().decode(base64EncodedImage);
 
         try (MockedStatic<FileUtils> mockFileUtils = mockStatic(FileUtils.class)) {
             mockFileUtils.when(()->FileUtils.writeByteArrayToFile(any(), any())).thenThrow(new IOException("I am an IOException"));

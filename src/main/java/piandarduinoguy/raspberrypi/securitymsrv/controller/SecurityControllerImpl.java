@@ -4,11 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityConfig;
 import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityState;
 import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityStatus;
-import piandarduinoguy.raspberrypi.securitymsrv.data.mapper.MultipartImageFileMapper;
+import piandarduinoguy.raspberrypi.securitymsrv.data.mapper.ImageMapper;
 import piandarduinoguy.raspberrypi.securitymsrv.service.SecurityService;
 
 @RestController
@@ -28,9 +27,9 @@ public class SecurityControllerImpl implements SecurityController {
     }
 
     @Override
-    public ResponseEntity<Void> performSecurityCheck(MultipartFile multipartImageFile) {
-        byte[] imageBytes = MultipartImageFileMapper.multipartImageFileToByteArrayImage(multipartImageFile);
-        if (securityService.detectPerson(imageBytes) && isSecuritySystemArmed()) {
+    public ResponseEntity<Void> performSecurityCheck(String base64EncodedImage) {
+        byte[] imageByteArray = ImageMapper.base64ToByteArray(base64EncodedImage);
+        if (securityService.detectPerson(imageByteArray) && isSecuritySystemArmed()) {
             SecurityConfig securityConfig = securityService.getSecurityConfig();
             securityConfig.setSecurityStatus(SecurityStatus.BREACHED);
             securityService.saveSecurityConfig(securityConfig);

@@ -1,8 +1,6 @@
 package piandarduinoguy.raspberrypi.securitymsrv.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +38,11 @@ class SecurityServiceIntegrationTest {
     private SecurityService securityService;
 
     @Test
-    @DisplayName("Given an image with a person " +
+    @DisplayName("Given a base64 encoded image of a person " +
             "when detectPersonFromUploadedImage called " +
             "then return that a person was detected and the expected annotated image must be saved.")
     void canDetectPersonWhenImageContainsPerson() throws Exception{
+        String base64EncodedImageNoPerson = testUtils.createBase64EncodedImageFromImageFile(new File("src/test/resources/test_new_capture_person.jpeg"));
         byte[] imageBytes = testUtils.getExpectedCapturedImageBytesFromFile(new File("src/test/resources/test_new_capture_person.jpeg"));
 
         assertTrue(securityService.detectPerson(imageBytes));

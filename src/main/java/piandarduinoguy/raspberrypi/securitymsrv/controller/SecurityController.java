@@ -18,7 +18,7 @@ public interface SecurityController {
     }
 
     @PostMapping(value = "security-check")
-    default ResponseEntity<Void> performSecurityCheck(@RequestParam("image") MultipartFile multipartImageFile) {
+    default ResponseEntity<Void> performSecurityCheck(@RequestBody String base64EncodedImage) {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 

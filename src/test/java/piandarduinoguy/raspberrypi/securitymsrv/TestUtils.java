@@ -2,7 +2,6 @@ package piandarduinoguy.raspberrypi.securitymsrv;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import org.apache.commons.io.FileUtils;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +16,11 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -75,25 +76,14 @@ public class TestUtils {
         this.testTemporaryImageFile.delete();
     }
 
-    public static MockMultipartFile createMockMultipartImageFile() throws Exception {
-        return new MockMultipartFile(
-                "image",
-                "test_new_capture.jpeg",
-                "multipart/form-data",
-                new FileInputStream("src/test/resources/test_new_capture_person.jpeg"));
+    public String createBase64EncodedImageFromImageFile(File imageFile) throws Exception {
+        return Base64.getEncoder().encodeToString(FileUtils.readFileToByteArray(imageFile));
     }
 
-    public void assertThatExpectedTempImageFileCreated(MockMultipartFile image) throws Exception {
+    public void assertThatExpectedTempImageFileCreated(String base64EncodedImage) throws Exception {
         assertThat(testTemporaryImageFile).exists();
-        byte[] expectedImageByteData = image.getBytes();
-        byte[] savedImageByteData = FileUtils.readFileToByteArray(testTemporaryImageFile);
-        assertThat(expectedImageByteData).isEqualTo(savedImageByteData);
-    }
-
-    public void assertThatExpectedTempImageFileCreated(byte[] expectedImageByteData) throws Exception {
-        assertThat(testTemporaryImageFile).exists();
-        byte[] savedImageByteData = FileUtils.readFileToByteArray(testTemporaryImageFile);
-        assertThat(expectedImageByteData).isEqualTo(savedImageByteData);
+        String base64EncodedSavedImage = Base64.getEncoder().encodeToString(FileUtils.readFileToByteArray(testTemporaryImageFile));
+        assertThat(base64EncodedSavedImage).isEqualToIgnoringCase(base64EncodedImage);
     }
 
     public void assertThatExpectedAnnotatedImageCreated() {
@@ -112,7 +102,7 @@ public class TestUtils {
 
     public String getExpectedBase64EncodedAnnotatedImage() throws IOException {
         byte[] annotatedImageBytes = FileUtils.readFileToByteArray(this.testAnnotatedImageFile);
-        String expectedBase64EncodedAnnotatedImage = Base64.encode(annotatedImageBytes);
+        String expectedBase64EncodedAnnotatedImage = Base64.getEncoder().encodeToString(annotatedImageBytes);
         return expectedBase64EncodedAnnotatedImage;
     }
 
