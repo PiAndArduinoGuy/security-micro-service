@@ -1,6 +1,7 @@
 server:
   servlet:
     context-path: "/security"
+  port: 8082
 
 resources:
   base:
@@ -20,6 +21,9 @@ yolo:
       non_maxima_suppression: 0.3
 
 spring:
+  rabbitmq:
+    port: 5672
+    host: 192.168.3.123
   cloud:
     stream:
       bindings:

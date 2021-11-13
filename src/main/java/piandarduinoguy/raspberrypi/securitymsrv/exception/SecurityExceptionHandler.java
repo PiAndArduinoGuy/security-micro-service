@@ -6,6 +6,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import piandarduinoguy.raspberrypi.securitymsrv.data.domain.Problem;
+import sun.security.x509.IssuerAlternativeNameExtension;
 
 @ControllerAdvice
 public class SecurityExceptionHandler {
@@ -21,7 +22,6 @@ public class SecurityExceptionHandler {
 
     }
 
-    //TODO: add exception handler here for ImageFileExceptions
     @ExceptionHandler(ImageFileException.class)
     public ResponseEntity<Problem> handleImageFileException(ImageFileException imageFileException){
         Problem zalandoProblem = new Problem();
@@ -32,6 +32,7 @@ public class SecurityExceptionHandler {
         return new ResponseEntity<>(zalandoProblem, imageFileException.getHttpStatus());
     }
 
+    @ExceptionHandler(SecurityConfigFileException.class)
     public ResponseEntity<Problem> handleSecurityConfigFileException(SecurityConfigFileException securityConfigFileException) {
         Problem zalandoProblem = new Problem();
         zalandoProblem.setDetail(securityConfigFileException.getMessage());
@@ -45,6 +46,16 @@ public class SecurityExceptionHandler {
     public ResponseEntity<Problem> handlePersonDetectorException(PersonDetectorException personDetectorException) {
         Problem zalandoProblem = new Problem();
         zalandoProblem.setDetail(personDetectorException.getMessage());
+        zalandoProblem.setTitle(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
+        zalandoProblem.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+
+        return new ResponseEntity<>(zalandoProblem, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Problem> handleException(Exception exception){
+        Problem zalandoProblem=  new Problem();
+        zalandoProblem.setDetail(String.format("An unexpected exception occurred with message '%s'", exception.getMessage()));
         zalandoProblem.setTitle(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
         zalandoProblem.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
 

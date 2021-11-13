@@ -54,6 +54,17 @@ class SecurityControllerExceptionHandlerUnitTest {
     }
 
     @Test
+    void canReturnZalandoProblemForException(){
+        String exceptionMessage = "This is an Exception.";
+        ResponseEntity<Problem> responseEntity = securityExceptionHandler.handleException(new Exception(exceptionMessage));
+
+        assertThat(responseEntity).isNotNull();
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+        assertExpectedZalandoProblem("An unexpected exception occurred with message 'This is an Exception.'", responseEntity, HttpStatus.INTERNAL_SERVER_ERROR);
+
+    }
+
+    @Test
     void canReturnZalandoProblemForPersonDetectorException(){
         String exceptionMessage = "This is a PythonDetectorException.";
 

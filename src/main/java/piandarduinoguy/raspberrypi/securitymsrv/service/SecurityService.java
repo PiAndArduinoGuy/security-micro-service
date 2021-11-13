@@ -1,6 +1,8 @@
 package piandarduinoguy.raspberrypi.securitymsrv.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.FileNotFoundException;
 import java.util.Base64;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -45,7 +47,11 @@ public class SecurityService {
     public SecurityConfig getSecurityConfig() {
         try {
             return objectMapper.readValue(new File(resourcesBaseLocation + "security_config.json"), SecurityConfig.class);
-        } catch (IOException ioException) {
+        } catch (FileNotFoundException fileNotFoundException) {
+            throw new SecurityConfigFileException(String.format(
+                    "The SecurityConfig file was not found. FileNotFoundException with message \"%s\" was thrown.",
+                    fileNotFoundException.getMessage()));
+        } catch (IOException ioException){
             throw new SecurityConfigFileException(String.format(
                     "Could not retrieve security config due to an IOException with message \"%s\".",
                     ioException.getMessage()));

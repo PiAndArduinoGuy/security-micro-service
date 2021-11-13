@@ -190,4 +190,14 @@ class SecurityServiceUnitTest {
         testUtils.assertThatExpectedSecurityConfigJsonFileSaved(breachedAndDisarmedSecurityConfig);
         testUtils.deleteSecurityConfigFile();
     }
+
+    @Test
+    @DisplayName("Given no security config file " +
+            "when getSecurityConfig method called " +
+            "then throw exception")
+    void canThrowExceptionIfNoSecurityConfigFile() throws Exception {
+        assertThatThrownBy(() -> securityService.getSecurityConfig())
+                .isInstanceOf(SecurityConfigFileException.class)
+                .hasMessage("The SecurityConfig file was not found. FileNotFoundException with message \"src/test/resources/application/security_config.json (No such file or directory)\" was thrown.");
+    }
 }
