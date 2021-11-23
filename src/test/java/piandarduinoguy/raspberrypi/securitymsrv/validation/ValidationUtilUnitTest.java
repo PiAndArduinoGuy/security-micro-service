@@ -7,8 +7,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityConfig;
+import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityState;
+import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityStatus;
 import piandarduinoguy.raspberrypi.securitymsrv.exception.ImageFileException;
 import piandarduinoguy.raspberrypi.securitymsrv.exception.PersonDetectorException;
+import piandarduinoguy.raspberrypi.securitymsrv.exception.SecurityConfigStateException;
 import piandarduinoguy.raspberrypi.securitymsrv.service.PersonDetectorService;
 
 import java.io.File;
@@ -110,5 +114,41 @@ class ValidationUtilUnitTest {
             fail(String.format("pythonDetectorException exception was thrown that was no expected, exception message is '%s'", personDetectorException.getMessage()));
         }
     }
+
+    @DisplayName("Given a security config with security state ARMED " +
+            "when validateSecurityConfigInArmableState method called " +
+            "then throw exception.")
+    @Test
+    void canThrowExceptionForSecurityStateArmedWhenArmableValidationCalled(){
+        assertThatThrownBy(() -> ValidationUtil.validateSecurityConfigInArmableState(new SecurityConfig(SecurityStatus.SAFE, SecurityState.ARMED)))
+                .isInstanceOf(SecurityConfigStateException.class)
+                .hasMessage("Security can not be armed with it in a state of ARMED already.");
+    }
+
+    @DisplayName("Given a security config with security status BREACHED " +
+            "when validateSecurityConfigInArmableState method called " +
+            "then throw exception.")
+    @Test
+    void canThrowExceptionForSecurityStatusBreachedWhenArmableValidationCalled(){
+        assertThatThrownBy(() -> ValidationUtil.validateSecurityConfigInArmableState(new SecurityConfig(SecurityStatus.BREACHED, SecurityState.DISARMED)))
+                .isInstanceOf(SecurityConfigStateException.class)
+                .hasMessage("Security can not be armed with security status BREACHED.");
+    }
+
+
+    @DisplayName("Given a security config allows for arming" +
+            "when validateSecurityConfigInArmableState method called " +
+            "then throw no exception.")
+    @Test
+    void doesNotThrowSecurityConfigStateExceptionIfSecurityConfigAllowsForArming(){
+        try {
+            ValidationUtil.validateSecurityConfigInArmableState(new SecurityConfig(SecurityStatus.SAFE, SecurityState.DISARMED));
+        } catch (Exception e){
+            fail(String.format("Exception not expected, but exception %s thrown.", e.getClass().getSimpleName()));
+        }
+
+    }
+
+
 
 }

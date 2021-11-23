@@ -127,4 +127,63 @@ class SecurityControllerSecurityConfigIntegrationTest {
 
         testUtils.deleteSecurityConfigFile();
     }
+
+    @DisplayName("Given security config is DISARMED and SAFE " +
+            "when put to te /arm-alarm endpoint is made " +
+            "then return OK and update security config")
+    @Test
+    void canArmAlarm() throws Exception {
+        testUtils.createSecurityConfigFile(new SecurityConfig(SecurityStatus.SAFE, SecurityState.DISARMED));
+
+        HttpEntity httpEntity = new HttpEntity( null);
+        ResponseEntity<SecurityConfig> responseEntity = restTemplate.exchange("http://localhost:" + port + "/security/arm-alarm", HttpMethod.PUT, httpEntity, SecurityConfig.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        SecurityConfig securityConfig = responseEntity.getBody();
+        assertThat(securityConfig).isNotNull();
+        assertThat(securityConfig.getSecurityStatus()).isEqualTo(SecurityStatus.SAFE);
+        assertThat(securityConfig.getSecurityState()).isEqualTo(SecurityState.ARMED);
+
+        testUtils.deleteSecurityConfigFile();
+    }
+
+    @DisplayName("Given security config is ARMED and SAFE " +
+            "when put to te /arm-alarm endpoint is made " +
+            "then return 400 bad request returned.")
+    @Test
+    void doesNotArmAlreadyArmedAlarm() throws Exception {
+        testUtils.createSecurityConfigFile(new SecurityConfig(SecurityStatus.SAFE, SecurityState.ARMED));
+
+        HttpEntity httpEntity = new HttpEntity( null);
+        ResponseEntity<Problem> responseEntity = restTemplate.exchange("http://localhost:" + port + "/security/arm-alarm", HttpMethod.PUT, httpEntity, Problem.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Problem zalandoProblem = responseEntity.getBody();
+        assertThat(zalandoProblem).isNotNull();
+        assertThat(zalandoProblem.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(zalandoProblem.getDetail()).isEqualToIgnoringCase("Security can not be armed with it in a state of ARMED already.");
+        assertThat(zalandoProblem.getTitle()).isEqualToIgnoringCase(HttpStatus.BAD_REQUEST.getReasonPhrase());
+
+        testUtils.deleteSecurityConfigFile();
+    }
+
+    @DisplayName("Given security config is DISARMED and BREACHED " +
+            "when put to te /arm-alarm endpoint is made " +
+            "then return 400 bad request returned.")
+    @Test
+    void doesNotArmBreachedSecurity() throws Exception {
+        testUtils.createSecurityConfigFile(new SecurityConfig(SecurityStatus.BREACHED, SecurityState.DISARMED));
+
+        HttpEntity httpEntity = new HttpEntity( null);
+        ResponseEntity<Problem> responseEntity = restTemplate.exchange("http://localhost:" + port + "/security/arm-alarm", HttpMethod.PUT, httpEntity, Problem.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Problem zalandoProblem = responseEntity.getBody();
+        assertThat(zalandoProblem).isNotNull();
+        assertThat(zalandoProblem.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(zalandoProblem.getDetail()).isEqualToIgnoringCase("Security can not be armed with security status BREACHED.");
+        assertThat(zalandoProblem.getTitle()).isEqualToIgnoringCase(HttpStatus.BAD_REQUEST.getReasonPhrase());
+
+        testUtils.deleteSecurityConfigFile();
+    }
 }

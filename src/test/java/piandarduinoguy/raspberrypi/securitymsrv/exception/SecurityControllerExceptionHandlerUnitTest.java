@@ -75,6 +75,17 @@ class SecurityControllerExceptionHandlerUnitTest {
         assertExpectedZalandoProblem(exceptionMessage, responseEntity, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @Test
+    void canReturnZalandoProblemForSecurityConfigStateException(){
+        String exceptionMessage = "This is a SecurityConfigStateException.";
+
+        ResponseEntity<Problem> responseEntity = securityExceptionHandler.handleSecurityConfigStateException(new SecurityConfigStateException(exceptionMessage));
+
+        assertThat(responseEntity).isNotNull();
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertExpectedZalandoProblem(exceptionMessage, responseEntity, HttpStatus.BAD_REQUEST);
+    }
+
     private void assertExpectedZalandoProblem(String exceptionMessage, ResponseEntity<Problem> responseEntity, HttpStatus expectedHttpStatus) {
         Problem zalandoProblem = responseEntity.getBody();
         assertThat(zalandoProblem).isNotNull();

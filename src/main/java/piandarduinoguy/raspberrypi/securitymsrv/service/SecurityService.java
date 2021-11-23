@@ -1,9 +1,6 @@
 package piandarduinoguy.raspberrypi.securitymsrv.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.FileNotFoundException;
-import java.util.Base64;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,11 +13,14 @@ import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityState;
 import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityStatus;
 import piandarduinoguy.raspberrypi.securitymsrv.exception.ImageFileException;
 import piandarduinoguy.raspberrypi.securitymsrv.exception.SecurityConfigFileException;
+import piandarduinoguy.raspberrypi.securitymsrv.exception.SecurityConfigStateException;
 import piandarduinoguy.raspberrypi.securitymsrv.publisher.SecurityConfigPublisher;
 import piandarduinoguy.raspberrypi.securitymsrv.validation.ValidationUtil;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Base64;
 
 @Service
 public class SecurityService {
@@ -51,7 +51,7 @@ public class SecurityService {
             throw new SecurityConfigFileException(String.format(
                     "The SecurityConfig file was not found. FileNotFoundException with message \"%s\" was thrown.",
                     fileNotFoundException.getMessage()));
-        } catch (IOException ioException){
+        } catch (IOException ioException) {
             throw new SecurityConfigFileException(String.format(
                     "Could not retrieve security config due to an IOException with message \"%s\".",
                     ioException.getMessage()));
@@ -101,5 +101,13 @@ public class SecurityService {
 
     private boolean canAlarmBeSilenced() {
         return (this.getSecurityConfig().getSecurityState().equals(SecurityState.ARMED) && (this.getSecurityConfig().getSecurityStatus().equals(SecurityStatus.BREACHED)));
+    }
+
+    public SecurityConfig armAlarm() {
+        ValidationUtil.validateSecurityConfigInArmableState(this.getSecurityConfig());
+        SecurityConfig updatedSecurityConfig = this.getSecurityConfig();
+        updatedSecurityConfig.setSecurityState(SecurityState.ARMED);
+        this.saveSecurityConfig(updatedSecurityConfig);
+        return this.getSecurityConfig();
     }
 }

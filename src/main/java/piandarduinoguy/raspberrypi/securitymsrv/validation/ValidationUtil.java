@@ -3,8 +3,12 @@ package piandarduinoguy.raspberrypi.securitymsrv.validation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityConfig;
+import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityState;
+import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityStatus;
 import piandarduinoguy.raspberrypi.securitymsrv.exception.ImageFileException;
 import piandarduinoguy.raspberrypi.securitymsrv.exception.PersonDetectorException;
+import piandarduinoguy.raspberrypi.securitymsrv.exception.SecurityConfigStateException;
 
 import java.io.File;
 import java.util.List;
@@ -40,5 +44,19 @@ public class ValidationUtil {
                 throw new PersonDetectorException("The process logs are not listed as valid logs, valid process logs are - 'Person detected.', 'Person not detected.'");
             }
         }
+    }
+
+    public static void validateSecurityConfigInArmableState(SecurityConfig securityConfig) {
+        if (securityConfig.getSecurityState().equals(SecurityState.ARMED)) {
+            logErrorMessageAndThrowSecurityConfigStateException("Security can not be armed with it in a state of ARMED already.");
+        } else if (securityConfig.getSecurityStatus().equals(SecurityStatus.BREACHED)) {
+            logErrorMessageAndThrowSecurityConfigStateException("Security can not be armed with security status BREACHED.");
+        }
+    }
+
+    private static void logErrorMessageAndThrowSecurityConfigStateException(String s) {
+        String message = s;
+        LOGGER.error(message);
+        throw new SecurityConfigStateException(message);
     }
 }

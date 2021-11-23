@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.cloud.stream.messaging.Source;
 import org.springframework.cloud.stream.test.binder.MessageCollector;
 import org.springframework.test.context.TestPropertySource;
@@ -12,12 +13,18 @@ import piandarduinoguy.raspberrypi.securitymsrv.TestUtils;
 import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityConfig;
 import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityState;
 import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityStatus;
+import piandarduinoguy.raspberrypi.securitymsrv.exception.SecurityConfigStateException;
 
 import java.io.File;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.fail;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 @TestPropertySource("classpath:application-test.properties")
@@ -34,7 +41,7 @@ class SecurityServiceIntegrationTest {
     @Autowired
     private TestUtils testUtils;
 
-    @Autowired
+    @SpyBean
     private SecurityService securityService;
 
     @Test
@@ -77,4 +84,55 @@ class SecurityServiceIntegrationTest {
         testUtils.assertExpectedSecurityConfigPublishedOnOutputChannel(securityConfig);
         testUtils.deleteSecurityConfigFile();
     }
+
+    @Test
+    @DisplayName("Given the security config has security state of armed " +
+            "when armSecurity method called " +
+            "then throw an exception.")
+    void canPreventArmingWhenNotAlreadyArmed() throws Exception {
+        SecurityConfig armedSecurityConfig = new SecurityConfig(SecurityStatus.SAFE, SecurityState.ARMED);
+        testUtils.createSecurityConfigFile(armedSecurityConfig);
+
+        assertThatThrownBy(() -> securityService.armAlarm())
+                .isInstanceOf(SecurityConfigStateException.class)
+                .hasMessage("Security can not be armed with it in a state of ARMED already.");
+
+        verify(securityService, times(0)).saveSecurityConfig(any());
+        testUtils.deleteSecurityConfigFile();
+    }
+
+    @Test
+    @DisplayName("Given the security config has security status of breached " +
+            "when armSecurity method called " +
+            "then throw an exception.")
+    void canPreventArmingWhenBreached() throws Exception {
+        SecurityConfig armedSecurityConfig = new SecurityConfig(SecurityStatus.BREACHED, SecurityState.DISARMED);
+        testUtils.createSecurityConfigFile(armedSecurityConfig);
+
+        assertThatThrownBy(() -> securityService.armAlarm())
+                .isInstanceOf(SecurityConfigStateException.class)
+                .hasMessage("Security can not be armed with security status BREACHED.");
+
+        verify(securityService, times(0)).saveSecurityConfig(any());
+        testUtils.deleteSecurityConfigFile();
+    }
+
+
+    @Test
+    @DisplayName("Given the security config dictates the possibility to arm security " +
+            "when armSecurity method called " +
+            "then update security config dictating an armed state and returned updated security config.")
+    void canArmSecurity() throws Exception {
+        SecurityConfig unarmedSecurityConfig = new SecurityConfig(SecurityStatus.SAFE, SecurityState.DISARMED);
+        testUtils.createSecurityConfigFile(unarmedSecurityConfig);
+
+        SecurityConfig updatedSecurityConfig = securityService.armAlarm();
+
+        assertThat(updatedSecurityConfig.getSecurityStatus()).isEqualTo(SecurityStatus.SAFE);
+        assertThat(updatedSecurityConfig.getSecurityState()).isEqualTo(SecurityState.ARMED);
+
+        testUtils.deleteSecurityConfigFile();
+    }
+
+
 }

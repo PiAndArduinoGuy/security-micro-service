@@ -47,8 +47,14 @@ public class SecurityControllerImpl implements SecurityController {
     }
 
     @Override
-    public ResponseEntity<Void> silenceAlarm() {
+    public ResponseEntity<SecurityConfig> silenceAlarm() {
         this.securityService.silenceAlarm();
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity(securityService.getSecurityConfig(), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<SecurityConfig> armAlarm(){
+        this.securityService.armAlarm();
+        return new ResponseEntity<>(securityService.getSecurityConfig(), HttpStatus.OK);
     }
 }
