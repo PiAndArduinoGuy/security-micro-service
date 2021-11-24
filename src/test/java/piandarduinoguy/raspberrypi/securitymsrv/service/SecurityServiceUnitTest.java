@@ -161,35 +161,6 @@ class SecurityServiceUnitTest {
         testUtils.deleteSecurityConfigFile();
     }
 
-    @Test
-    @DisplayName("Given SecurityConfig has BREACHED status but a DISARMED state " +
-            "when silenceAlarm method called " +
-            "then SecurityConfig not changed")
-    void securityConfigNotChangedIfNotArmedWhenSilenceAlarmCalled() throws Exception {
-        SecurityConfig breachedAndDisarmedSecurityConfig = new SecurityConfig(SecurityStatus.BREACHED, SecurityState.DISARMED);
-        testUtils.createSecurityConfigFile(breachedAndDisarmedSecurityConfig);
-
-        securityService.silenceAlarm();
-        verify(securityService, times(0)).saveSecurityConfig(any());
-
-        testUtils.assertThatExpectedSecurityConfigJsonFileSaved(breachedAndDisarmedSecurityConfig);
-        testUtils.deleteSecurityConfigFile();
-    }
-
-    @Test
-    @DisplayName("Given SecurityConfig has SAFE status and ARMED state " +
-            "when silenceAlarm method called " +
-            "then SecurityConfig not changed")
-    void securityConfigNotChangedIfArmedButNotBreachedWhenSilenceAlarmCalled() throws Exception {
-        SecurityConfig breachedAndDisarmedSecurityConfig = new SecurityConfig(SecurityStatus.SAFE, SecurityState.ARMED);
-        testUtils.createSecurityConfigFile(breachedAndDisarmedSecurityConfig);
-
-        securityService.silenceAlarm();
-        verify(securityService, times(0)).saveSecurityConfig(any());
-
-        testUtils.assertThatExpectedSecurityConfigJsonFileSaved(breachedAndDisarmedSecurityConfig);
-        testUtils.deleteSecurityConfigFile();
-    }
 
     @Test
     @DisplayName("Given no security config file " +

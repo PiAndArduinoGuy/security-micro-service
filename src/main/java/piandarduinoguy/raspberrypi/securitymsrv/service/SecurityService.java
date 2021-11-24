@@ -13,7 +13,6 @@ import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityState;
 import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityStatus;
 import piandarduinoguy.raspberrypi.securitymsrv.exception.ImageFileException;
 import piandarduinoguy.raspberrypi.securitymsrv.exception.SecurityConfigFileException;
-import piandarduinoguy.raspberrypi.securitymsrv.exception.SecurityConfigStateException;
 import piandarduinoguy.raspberrypi.securitymsrv.publisher.SecurityConfigPublisher;
 import piandarduinoguy.raspberrypi.securitymsrv.validation.ValidationUtil;
 
@@ -97,7 +96,7 @@ public class SecurityService {
     }
 
     public SecurityConfig armAlarm() {
-        ValidationUtil.validateSecurityConfigInArmableState(this.getSecurityConfig());
+        ValidationUtil.validateSecurityCanBeArmed(this.getSecurityConfig());
         SecurityConfig updatedSecurityConfig = this.getSecurityConfig();
         updatedSecurityConfig.setSecurityState(SecurityState.ARMED);
         this.saveSecurityConfig(updatedSecurityConfig);

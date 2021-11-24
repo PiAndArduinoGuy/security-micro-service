@@ -120,7 +120,7 @@ class ValidationUtilUnitTest {
             "then throw exception.")
     @Test
     void canThrowExceptionForSecurityStateArmedWhenArmableValidationCalled(){
-        assertThatThrownBy(() -> ValidationUtil.validateSecurityConfigInArmableState(new SecurityConfig(SecurityStatus.SAFE, SecurityState.ARMED)))
+        assertThatThrownBy(() -> ValidationUtil.validateSecurityCanBeArmed(new SecurityConfig(SecurityStatus.SAFE, SecurityState.ARMED)))
                 .isInstanceOf(SecurityConfigStateException.class)
                 .hasMessage("Security can not be armed with it in a state of ARMED already.");
     }
@@ -130,7 +130,7 @@ class ValidationUtilUnitTest {
             "then throw exception.")
     @Test
     void canThrowExceptionForSecurityStatusBreachedWhenArmableValidationCalled(){
-        assertThatThrownBy(() -> ValidationUtil.validateSecurityConfigInArmableState(new SecurityConfig(SecurityStatus.BREACHED, SecurityState.DISARMED)))
+        assertThatThrownBy(() -> ValidationUtil.validateSecurityCanBeArmed(new SecurityConfig(SecurityStatus.BREACHED, SecurityState.DISARMED)))
                 .isInstanceOf(SecurityConfigStateException.class)
                 .hasMessage("Security can not be armed with security status BREACHED.");
     }
@@ -142,7 +142,7 @@ class ValidationUtilUnitTest {
     @Test
     void doesNotThrowSecurityConfigStateExceptionIfSecurityConfigAllowsForArming(){
         try {
-            ValidationUtil.validateSecurityConfigInArmableState(new SecurityConfig(SecurityStatus.SAFE, SecurityState.DISARMED));
+            ValidationUtil.validateSecurityCanBeArmed(new SecurityConfig(SecurityStatus.SAFE, SecurityState.DISARMED));
         } catch (Exception e){
             fail(String.format("Exception not expected, but exception %s thrown.", e.getClass().getSimpleName()));
         }

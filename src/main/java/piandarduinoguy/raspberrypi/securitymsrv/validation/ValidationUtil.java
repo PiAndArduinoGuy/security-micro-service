@@ -46,7 +46,7 @@ public class ValidationUtil {
         }
     }
 
-    public static void validateSecurityConfigInArmableState(SecurityConfig securityConfig) {
+    public static void validateSecurityCanBeArmed(SecurityConfig securityConfig) {
         if (securityConfig.getSecurityState().equals(SecurityState.ARMED)) {
             logErrorMessageAndThrowSecurityConfigStateException("Security can not be armed with it in a state of ARMED already.");
         } else if (securityConfig.getSecurityStatus().equals(SecurityStatus.BREACHED)) {
