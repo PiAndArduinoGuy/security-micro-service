@@ -215,6 +215,42 @@ class SecurityControllerSecurityConfigIntegrationTest {
         testUtils.deleteSecurityConfigFile();
     }
 
+    @DisplayName("Given securityConfig is ARMED " +
+            "when put to the /disarm-alarm endpoint is made" +
+            "then return OK response and securityConfig state is DISARMED")
+    @Test
+    void canDisarmAlarm() throws Exception {
+        testUtils.createSecurityConfigFile(new SecurityConfig(SecurityStatus.SAFE, SecurityState.ARMED));
+
+        HttpEntity httpEntity = new HttpEntity( null);
+        ResponseEntity<SecurityConfig> responseEntity = restTemplate.exchange("http://localhost:" + port + "/security/disarm-alarm", HttpMethod.PUT, httpEntity, SecurityConfig.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        SecurityConfig updatedSecurityConfig = responseEntity.getBody();
+        assertThat(updatedSecurityConfig.getSecurityState()).isEqualTo(SecurityState.DISARMED);
+        assertThat(updatedSecurityConfig.getSecurityStatus()).isEqualTo(SecurityStatus.SAFE);
+        testUtils.assertThatExpectedSecurityConfigJsonFileSaved(updatedSecurityConfig);
+
+        testUtils.deleteSecurityConfigFile();
+    }
+
+    @DisplayName("Given securityConfig is DISARMED " +
+            "when put to the /disarm-alarm endpoint is made" +
+            "then return 400 bad request returned with zalando problem.")
+    @Test
+    void doesNotDisarmAlarmIfItIsNotInAStateToDisarm() throws Exception {
+        testUtils.createSecurityConfigFile(new SecurityConfig(SecurityStatus.SAFE, SecurityState.DISARMED));
+
+        HttpEntity httpEntity = new HttpEntity( null);
+        ResponseEntity<Problem> responseEntity = restTemplate.exchange("http://localhost:" + port + "/security/disarm-alarm", HttpMethod.PUT, httpEntity, Problem.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Problem zalandoProblem = responseEntity.getBody();
+        assertExpectedZalandoProblem(zalandoProblem, HttpStatus.BAD_REQUEST, "Security cannot be disarmed as is already in a DISARMED state.");
+
+        testUtils.deleteSecurityConfigFile();
+    }
+
     private void assertExpectedZalandoProblem(Problem zalandoProblem, HttpStatus httpStatus, String detail){
         assertThat(zalandoProblem).isNotNull();
         assertThat(zalandoProblem.getStatus()).isEqualTo(httpStatus.value());

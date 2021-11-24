@@ -131,6 +131,7 @@ class SecurityServiceIntegrationTest {
 
         SecurityConfig updatedSecurityConfig = securityService.armAlarm();
 
+        verify(securityService).saveSecurityConfig(any());
         assertThat(updatedSecurityConfig.getSecurityStatus()).isEqualTo(SecurityStatus.SAFE);
         assertThat(updatedSecurityConfig.getSecurityState()).isEqualTo(SecurityState.ARMED);
 
@@ -176,6 +177,7 @@ class SecurityServiceIntegrationTest {
 
         try {
             SecurityConfig updatedSecurityConfig = securityService.silenceAlarm();
+            verify(securityService).saveSecurityConfig(any());
             assertThat(updatedSecurityConfig.getSecurityState()).isEqualTo(SecurityState.DISARMED);
             assertThat(updatedSecurityConfig.getSecurityStatus()).isEqualTo(SecurityStatus.SAFE);
         } catch (Exception e){
@@ -185,6 +187,40 @@ class SecurityServiceIntegrationTest {
         }
 
 
+    }
+
+    @DisplayName("Given the security config has security state disarmed " +
+            "when disarmAlarm called " +
+            "then throw exception")
+    @Test
+    void canPreventAlarmDisarmWhenSecurityConfigAlreadyDisarmed() throws Exception {
+        testUtils.createSecurityConfigFile(new SecurityConfig(SecurityStatus.SAFE, SecurityState.DISARMED));
+
+        assertThatThrownBy(() -> securityService.disarmAlarm())
+                .isInstanceOf(SecurityConfigStateException.class)
+                .hasMessage("Security cannot be disarmed as is already in a DISARMED state.");
+        verify(securityService, times(0)).saveSecurityConfig(any());
+
+        testUtils.deleteSecurityConfigFile();
+    }
+
+    @DisplayName("Given the security config has security state armed" +
+            "when disarmAlarm called " +
+            "then alarm is disarmed")
+    @Test
+    void canDisarmAlarmWhenSecurityConfigAllowsIt() throws Exception {
+        testUtils.createSecurityConfigFile(new SecurityConfig(SecurityStatus.SAFE, SecurityState.ARMED));
+
+        try {
+            SecurityConfig updatedSecurityConfig = securityService.disarmAlarm();
+            verify(securityService).saveSecurityConfig(any());
+            assertThat(updatedSecurityConfig.getSecurityState()).isEqualTo(SecurityState.DISARMED);
+            assertThat(updatedSecurityConfig.getSecurityStatus()).isEqualTo(SecurityStatus.SAFE);
+        } catch (Exception e){
+            fail(String.format("An exception was thrown of type %s but was not expected.", e.getClass().getSimpleName()));
+        } finally {
+            testUtils.deleteSecurityConfigFile();
+        }
     }
 
 

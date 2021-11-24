@@ -101,4 +101,11 @@ public class SecurityService {
         updatedSecurityConfig.setSecurityState(SecurityState.ARMED);
         return this.saveSecurityConfig(updatedSecurityConfig);
     }
+
+    public SecurityConfig disarmAlarm() {
+        ValidationUtil.validateAlarmCanBeDisarmed(this.getSecurityConfig());
+        SecurityConfig updatedSecurityConfig = this.getSecurityConfig();
+        updatedSecurityConfig.setSecurityState(SecurityState.DISARMED);
+        return this.saveSecurityConfig(updatedSecurityConfig);
+    }
 }

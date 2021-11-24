@@ -67,4 +67,10 @@ public class ValidationUtil {
         LOGGER.error(message);
         throw new SecurityConfigStateException(message);
     }
+
+    public static void validateAlarmCanBeDisarmed(SecurityConfig securityConfig) {
+        if (securityConfig.getSecurityState() == SecurityState.DISARMED){
+            logErrorMessageAndThrowSecurityConfigStateException("Security cannot be disarmed as is already in a DISARMED state.");
+        }
+    }
 }

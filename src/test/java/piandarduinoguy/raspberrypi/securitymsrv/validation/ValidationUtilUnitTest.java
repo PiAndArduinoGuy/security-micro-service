@@ -169,6 +169,16 @@ class ValidationUtilUnitTest {
                 .hasMessage("Security cannot be silenced with it in a SAFE status.");
     }
 
+    @DisplayName("Given a security config with security status SAFE and state DISARMED " +
+            "when validateSecurityCanBeSilenced " +
+            "then throw exception")
+    @Test
+    void canThrowExceptionIfDisarmedSecurityConfigWhenValidatingDisarming(){
+        assertThatThrownBy(() -> ValidationUtil.validateAlarmCanBeDisarmed(new SecurityConfig(SecurityStatus.SAFE, SecurityState.DISARMED)))
+                .isInstanceOf(SecurityConfigStateException.class)
+                .hasMessage("Security cannot be disarmed as is already in a DISARMED state.");
+    }
+
 
 
 }

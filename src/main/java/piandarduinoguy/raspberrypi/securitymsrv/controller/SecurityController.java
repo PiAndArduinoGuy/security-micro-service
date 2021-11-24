@@ -44,4 +44,9 @@ public interface SecurityController {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 
+    @PutMapping("disarm-alarm")
+    default ResponseEntity<SecurityConfig> disarmAlarm(){
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+    }
+
 }
