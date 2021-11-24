@@ -89,18 +89,11 @@ public class SecurityService {
         return this.personDetectorService.hasPersonBeenDetected();
     }
 
-    public void silenceAlarm() {
-        if (this.canAlarmBeSilenced()) {
-            SecurityConfig securityConfig = new SecurityConfig(SecurityStatus.SAFE, SecurityState.DISARMED);
-            this.saveSecurityConfig(securityConfig);
-        } else {
-            LOGGER.info("Alarm could not be silenced because the SecurityConfig is not in a state for it to be silenced - {}",
-                    this.getSecurityConfig());
-        }
-    }
-
-    private boolean canAlarmBeSilenced() {
-        return (this.getSecurityConfig().getSecurityState().equals(SecurityState.ARMED) && (this.getSecurityConfig().getSecurityStatus().equals(SecurityStatus.BREACHED)));
+    public SecurityConfig silenceAlarm() {
+        ValidationUtil.validateSecurityCanBeSilenced(this.getSecurityConfig());
+        SecurityConfig securityConfig = new SecurityConfig(SecurityStatus.SAFE, SecurityState.DISARMED);
+        this.saveSecurityConfig(securityConfig);
+        return this.getSecurityConfig();
     }
 
     public SecurityConfig armAlarm() {

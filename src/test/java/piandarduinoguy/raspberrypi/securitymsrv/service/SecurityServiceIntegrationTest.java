@@ -48,7 +48,7 @@ class SecurityServiceIntegrationTest {
     @DisplayName("Given a base64 encoded image of a person " +
             "when detectPersonFromUploadedImage called " +
             "then return that a person was detected and the expected annotated image must be saved.")
-    void canDetectPersonWhenImageContainsPerson() throws Exception{
+    void canDetectPersonWhenImageContainsPerson() throws Exception {
         String base64EncodedImageNoPerson = testUtils.createBase64EncodedImageFromImageFile(new File("src/test/resources/test_new_capture_person.jpeg"));
         byte[] imageBytes = testUtils.getExpectedCapturedImageBytesFromFile(new File("src/test/resources/test_new_capture_person.jpeg"));
 
@@ -63,7 +63,7 @@ class SecurityServiceIntegrationTest {
     @DisplayName("Given an image with no person in it" +
             "when detectPersonFromUploadedImage called " +
             "then return that a person was not detected and that no annotated image was saved.")
-    void canDetectNoPersonWhenImageContainsNoPerson() throws Exception{
+    void canDetectNoPersonWhenImageContainsNoPerson() throws Exception {
         byte[] imageBytes = testUtils.getExpectedCapturedImageBytesFromFile(new File("src/test/resources/test_new_capture_no_person.jpeg"));
 
         assertFalse(securityService.detectPerson(imageBytes));
@@ -76,7 +76,7 @@ class SecurityServiceIntegrationTest {
     @DisplayName("Given a SecurityConfig object to save " +
             "when saveSecurityConfig called " +
             "then publish updated SecurityConfig object.")
-    void canPublishUpdatedSecurityConfig(){
+    void canPublishUpdatedSecurityConfig() {
         SecurityConfig securityConfig = new SecurityConfig(SecurityStatus.SAFE, SecurityState.DISARMED);
 
         securityService.saveSecurityConfig(securityConfig);
@@ -87,7 +87,7 @@ class SecurityServiceIntegrationTest {
 
     @Test
     @DisplayName("Given the security config has security state of armed " +
-            "when armSecurity method called " +
+            "when armAlarm method called " +
             "then throw an exception.")
     void canPreventArmingWhenNotAlreadyArmed() throws Exception {
         SecurityConfig armedSecurityConfig = new SecurityConfig(SecurityStatus.SAFE, SecurityState.ARMED);
@@ -103,7 +103,7 @@ class SecurityServiceIntegrationTest {
 
     @Test
     @DisplayName("Given the security config has security status of breached " +
-            "when armSecurity method called " +
+            "when armAlarm method called " +
             "then throw an exception.")
     void canPreventArmingWhenBreached() throws Exception {
         SecurityConfig armedSecurityConfig = new SecurityConfig(SecurityStatus.BREACHED, SecurityState.DISARMED);
@@ -120,7 +120,7 @@ class SecurityServiceIntegrationTest {
 
     @Test
     @DisplayName("Given the security config dictates the possibility to arm security " +
-            "when armSecurity method called " +
+            "when armAlarm method called " +
             "then update security config dictating an armed state and returned updated security config.")
     void canArmSecurity() throws Exception {
         SecurityConfig unarmedSecurityConfig = new SecurityConfig(SecurityStatus.SAFE, SecurityState.DISARMED);
@@ -132,6 +132,54 @@ class SecurityServiceIntegrationTest {
         assertThat(updatedSecurityConfig.getSecurityState()).isEqualTo(SecurityState.ARMED);
 
         testUtils.deleteSecurityConfigFile();
+    }
+
+    @DisplayName("Given the security config has security status safe " +
+            "when silenceAlarm called " +
+            "then throw exception")
+    @Test
+    void canPreventAlarmSilenceWhenSecurityConfigSafe() throws Exception {
+        testUtils.createSecurityConfigFile(new SecurityConfig(SecurityStatus.SAFE, SecurityState.ARMED));
+
+        assertThatThrownBy(() -> securityService.silenceAlarm())
+                .isInstanceOf(SecurityConfigStateException.class)
+                .hasMessage("Security cannot be silenced with it in a SAFE status.");
+
+        testUtils.deleteSecurityConfigFile();
+    }
+
+    @DisplayName("Given the security config has security state disarmed " +
+            "when silenceAlarm called " +
+            "then throw exception")
+    @Test
+    void canPreventAlarmSilenceWhenSecurityConfigDisarmed() throws Exception {
+        testUtils.createSecurityConfigFile(new SecurityConfig(SecurityStatus.BREACHED, SecurityState.DISARMED));
+
+        assertThatThrownBy(() -> securityService.silenceAlarm())
+                .isInstanceOf(SecurityConfigStateException.class)
+                .hasMessage("Security cannot be silenced with it in a DISARMED state.");
+
+        testUtils.deleteSecurityConfigFile();
+    }
+
+    @DisplayName("Given the security config has security state armed and security status breached " +
+            "when silenceAlarm called " +
+            "then silence alarm")
+    @Test
+    void canSilenceAlarmWhenSecurityConfigAllowsIt() throws Exception {
+        testUtils.createSecurityConfigFile(new SecurityConfig(SecurityStatus.BREACHED, SecurityState.ARMED));
+
+        try {
+            SecurityConfig updatedSecurityConfig = securityService.silenceAlarm();
+            assertThat(updatedSecurityConfig.getSecurityState()).isEqualTo(SecurityState.DISARMED);
+            assertThat(updatedSecurityConfig.getSecurityStatus()).isEqualTo(SecurityStatus.SAFE);
+        } catch (Exception e){
+            fail(String.format("An exception was thrown of type %s but was not expected.", e.getClass().getSimpleName()));
+        } finally {
+            testUtils.deleteSecurityConfigFile();
+        }
+
+
     }
 
 

@@ -34,7 +34,7 @@ public interface SecurityController {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    @PostMapping("silence-alarm")
+    @PutMapping("silence-alarm")
     default ResponseEntity<SecurityConfig> silenceAlarm() {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }

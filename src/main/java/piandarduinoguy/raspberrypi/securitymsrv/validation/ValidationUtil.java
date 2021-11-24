@@ -54,6 +54,14 @@ public class ValidationUtil {
         }
     }
 
+    public static void validateSecurityCanBeSilenced(SecurityConfig securityConfig) {
+        if (securityConfig.getSecurityState().equals(SecurityState.DISARMED)){
+            logErrorMessageAndThrowSecurityConfigStateException("Security cannot be silenced with it in a DISARMED state.");
+        } else if (securityConfig.getSecurityStatus().equals(SecurityStatus.SAFE)){
+            logErrorMessageAndThrowSecurityConfigStateException("Security cannot be silenced with it in a SAFE status.");
+        }
+    }
+
     private static void logErrorMessageAndThrowSecurityConfigStateException(String s) {
         String message = s;
         LOGGER.error(message);
