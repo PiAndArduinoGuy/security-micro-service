@@ -59,9 +59,7 @@ class SecurityControllerSecurityConfigIntegrationTest {
         assertThat(responseEntity).isNotNull();
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         SecurityConfig updatedSecurityConfig = responseEntity.getBody();
-        assertThat(updatedSecurityConfig).isNotNull();
-        assertThat(updatedSecurityConfig.getSecurityStatus()).isEqualTo(SecurityStatus.SAFE);
-        assertThat(updatedSecurityConfig.getSecurityState()).isEqualTo(SecurityState.ARMED);
+        assertExpectedSecurityConfig(updatedSecurityConfig, new SecurityConfig(SecurityStatus.SAFE, SecurityState.ARMED));
         testUtils.assertThatExpectedSecurityConfigJsonFileSaved(updatedSecurityConfig);
 
         testUtils.deleteSecurityConfigFile();
@@ -77,10 +75,8 @@ class SecurityControllerSecurityConfigIntegrationTest {
         ResponseEntity<SecurityConfig> responseEntity = restTemplate.getForEntity("http://localhost:" + port + "/security/security-config", SecurityConfig.class);
         assertThat(responseEntity).isNotNull();
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        SecurityConfig returnedSecurityConfig = responseEntity.getBody();
-        assertThat(returnedSecurityConfig).isNotNull();
-        assertThat(returnedSecurityConfig.getSecurityStatus()).isEqualTo(existingSecurityConfig.getSecurityStatus());
-        assertThat(returnedSecurityConfig.getSecurityState()).isEqualTo(existingSecurityConfig.getSecurityState());
+        SecurityConfig securityConfig = responseEntity.getBody();
+        assertExpectedSecurityConfig(securityConfig, existingSecurityConfig);
 
         testUtils.deleteSecurityConfigFile();
     }
@@ -206,10 +202,11 @@ class SecurityControllerSecurityConfigIntegrationTest {
         testUtils.createSecurityConfigFile(new SecurityConfig(SecurityStatus.BREACHED, SecurityState.ARMED));
 
         HttpEntity httpEntity = new HttpEntity( null);
-        ResponseEntity<Problem> responseEntity = restTemplate.exchange("http://localhost:" + port + "/security/silence-alarm", HttpMethod.PUT, httpEntity, Problem.class);
+        ResponseEntity<SecurityConfig> responseEntity = restTemplate.exchange("http://localhost:" + port + "/security/silence-alarm", HttpMethod.PUT, httpEntity, SecurityConfig.class);
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        SecurityConfig updatedSecurityConfig = new SecurityConfig(SecurityStatus.SAFE, SecurityState.DISARMED);
+        SecurityConfig updatedSecurityConfig = responseEntity.getBody();
+        assertExpectedSecurityConfig(updatedSecurityConfig, new SecurityConfig(SecurityStatus.SAFE, SecurityState.DISARMED));
         testUtils.assertThatExpectedSecurityConfigJsonFileSaved(updatedSecurityConfig);
 
         testUtils.deleteSecurityConfigFile();
@@ -227,8 +224,7 @@ class SecurityControllerSecurityConfigIntegrationTest {
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         SecurityConfig updatedSecurityConfig = responseEntity.getBody();
-        assertThat(updatedSecurityConfig.getSecurityState()).isEqualTo(SecurityState.DISARMED);
-        assertThat(updatedSecurityConfig.getSecurityStatus()).isEqualTo(SecurityStatus.SAFE);
+        assertExpectedSecurityConfig(updatedSecurityConfig, new SecurityConfig(SecurityStatus.SAFE, SecurityState.DISARMED));
         testUtils.assertThatExpectedSecurityConfigJsonFileSaved(updatedSecurityConfig);
 
         testUtils.deleteSecurityConfigFile();
@@ -257,5 +253,11 @@ class SecurityControllerSecurityConfigIntegrationTest {
         assertThat(zalandoProblem.getDetail()).isEqualToIgnoringCase(detail);
         assertThat(zalandoProblem.getTitle()).isEqualToIgnoringCase(httpStatus.getReasonPhrase());
 
+    }
+
+    private void assertExpectedSecurityConfig(SecurityConfig updatedSecurityConfig, SecurityConfig expectedSecurityConfig) {
+        assertThat(updatedSecurityConfig).isNotNull();
+        assertThat(updatedSecurityConfig.getSecurityState()).isEqualTo(expectedSecurityConfig.getSecurityState());
+        assertThat(updatedSecurityConfig.getSecurityStatus()).isEqualTo(expectedSecurityConfig.getSecurityStatus());
     }
 }
