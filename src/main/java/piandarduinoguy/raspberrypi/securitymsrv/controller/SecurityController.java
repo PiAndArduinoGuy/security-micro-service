@@ -15,7 +15,7 @@ import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityConfig;
 public interface SecurityController {
 
     @PutMapping("update/security-config")
-    default ResponseEntity<Void> updateSecurityConfig(@RequestBody SecurityConfig securityConfig) {
+    default ResponseEntity<SecurityConfig> updateSecurityConfig(@RequestBody SecurityConfig securityConfig) {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 

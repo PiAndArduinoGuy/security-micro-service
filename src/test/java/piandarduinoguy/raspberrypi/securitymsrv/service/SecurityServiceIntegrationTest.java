@@ -75,11 +75,14 @@ class SecurityServiceIntegrationTest {
     @Test
     @DisplayName("Given a SecurityConfig object to save " +
             "when saveSecurityConfig called " +
-            "then publish updated SecurityConfig object.")
+            "then publish updated SecurityConfig object and returned.")
     void canPublishUpdatedSecurityConfig() {
         SecurityConfig securityConfig = new SecurityConfig(SecurityStatus.SAFE, SecurityState.DISARMED);
 
-        securityService.saveSecurityConfig(securityConfig);
+        SecurityConfig savedSecurityConfig = securityService.saveSecurityConfig(securityConfig);
+        assertThat(savedSecurityConfig.getSecurityState()).isEqualTo(SecurityState.DISARMED);
+        assertThat(savedSecurityConfig.getSecurityStatus()).isEqualTo(SecurityStatus.SAFE);
+
 
         testUtils.assertExpectedSecurityConfigPublishedOnOutputChannel(securityConfig);
         testUtils.deleteSecurityConfigFile();
@@ -144,6 +147,7 @@ class SecurityServiceIntegrationTest {
         assertThatThrownBy(() -> securityService.silenceAlarm())
                 .isInstanceOf(SecurityConfigStateException.class)
                 .hasMessage("Security cannot be silenced with it in a SAFE status.");
+        verify(securityService, times(0)).saveSecurityConfig(any());
 
         testUtils.deleteSecurityConfigFile();
     }
@@ -158,6 +162,7 @@ class SecurityServiceIntegrationTest {
         assertThatThrownBy(() -> securityService.silenceAlarm())
                 .isInstanceOf(SecurityConfigStateException.class)
                 .hasMessage("Security cannot be silenced with it in a DISARMED state.");
+        verify(securityService, times(0)).saveSecurityConfig(any());
 
         testUtils.deleteSecurityConfigFile();
     }

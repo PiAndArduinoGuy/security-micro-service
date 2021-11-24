@@ -74,13 +74,16 @@ class SecurityServiceUnitTest {
     @Test
     @DisplayName("Given a security config domain object with attributes BREACHED for security status and ARMED for security state, " +
             "when saveSecurityConfig called, " +
-            "then save a security_config.json file with fields set accordingly.")
+            "then save a security_config.json file with fields set accordingly and return saved security config.")
     void canSaveSecurityConfig() throws Exception {
         SecurityConfig securityConfig = new SecurityConfig(SecurityStatus.BREACHED, SecurityState.ARMED);
 
-        securityService.saveSecurityConfig(securityConfig);
+        SecurityConfig savedSecurityConfig = securityService.saveSecurityConfig(securityConfig);
 
         testUtils.assertThatExpectedSecurityConfigJsonFileSaved(securityConfig);
+        assertThat(savedSecurityConfig).isNotNull();
+        assertThat(savedSecurityConfig.getSecurityStatus()).isEqualTo(SecurityStatus.BREACHED);
+        assertThat(savedSecurityConfig.getSecurityState()).isEqualTo(SecurityState.ARMED);
 
         testUtils.deleteSecurityConfigFile();
     }

@@ -53,18 +53,22 @@ class SecurityControllerSecurityConfigIntegrationTest {
             "then 201 CREATED response returned and security config updated as expected.")
     @Test
     void canSaveUpdatedSecurityConfig() throws Exception {
-        SecurityConfig updatedSecurityConfig = new SecurityConfig(SecurityStatus.SAFE, SecurityState.ARMED);
-        HttpEntity<SecurityConfig> httpEntity = new HttpEntity<>(updatedSecurityConfig);
-        ResponseEntity<Void> responseEntity = restTemplate.exchange("http://localhost:" + port + "/security/update/security-config", HttpMethod.PUT, httpEntity, Void.class);
+        SecurityConfig securityConfig = new SecurityConfig(SecurityStatus.SAFE, SecurityState.ARMED);
+        HttpEntity<SecurityConfig> httpEntity = new HttpEntity<>(securityConfig);
+        ResponseEntity<SecurityConfig> responseEntity = restTemplate.exchange("http://localhost:" + port + "/security/update/security-config", HttpMethod.PUT, httpEntity, SecurityConfig.class);
         assertThat(responseEntity).isNotNull();
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        SecurityConfig updatedSecurityConfig = responseEntity.getBody();
+        assertThat(updatedSecurityConfig).isNotNull();
+        assertThat(updatedSecurityConfig.getSecurityStatus()).isEqualTo(SecurityStatus.SAFE);
+        assertThat(updatedSecurityConfig.getSecurityState()).isEqualTo(SecurityState.ARMED);
         testUtils.assertThatExpectedSecurityConfigJsonFileSaved(updatedSecurityConfig);
 
         testUtils.deleteSecurityConfigFile();
     }
 
     @DisplayName("Given a security config json object exists " +
-            "when get endpoint hit to " +
+            "when get to the /security-config endpoint made" +
             "then 200 OK response security config returned.")
     @Test
     void canGetSecurityConfig() throws Exception {

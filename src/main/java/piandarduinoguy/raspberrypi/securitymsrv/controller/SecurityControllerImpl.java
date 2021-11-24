@@ -15,10 +15,10 @@ public class SecurityControllerImpl implements SecurityController {
     @Autowired
     private SecurityService securityService;
 
-    public ResponseEntity<Void> updateSecurityConfig(SecurityConfig securityConfig) {
-        securityService.saveSecurityConfig(securityConfig);
+    public ResponseEntity<SecurityConfig> updateSecurityConfig(SecurityConfig securityConfig) {
+        SecurityConfig updatedSecurityConfig = securityService.saveSecurityConfig(securityConfig);
 
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(updatedSecurityConfig, HttpStatus.CREATED);
     }
 
     @Override

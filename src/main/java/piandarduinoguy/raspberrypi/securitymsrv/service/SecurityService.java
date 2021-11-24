@@ -57,10 +57,11 @@ public class SecurityService {
         }
     }
 
-    public void saveSecurityConfig(SecurityConfig securityConfig) {
+    public SecurityConfig saveSecurityConfig(SecurityConfig securityConfig) {
         try {
             objectMapper.writeValue(new File(resourcesBaseLocation + "security_config.json"), securityConfig);
             this.securityConfigPublisher.publishSecurityConfig(securityConfig);
+            return this.getSecurityConfig();
         } catch (IOException ioException) {
             throw new SecurityConfigFileException(String.format(
                     "Could not save the security config file object %s to %s due to an IOException with message \"%s\".",
@@ -91,15 +92,13 @@ public class SecurityService {
     public SecurityConfig silenceAlarm() {
         ValidationUtil.validateSecurityCanBeSilenced(this.getSecurityConfig());
         SecurityConfig securityConfig = new SecurityConfig(SecurityStatus.SAFE, SecurityState.DISARMED);
-        this.saveSecurityConfig(securityConfig);
-        return this.getSecurityConfig();
+        return this.saveSecurityConfig(securityConfig);
     }
 
     public SecurityConfig armAlarm() {
         ValidationUtil.validateSecurityCanBeArmed(this.getSecurityConfig());
         SecurityConfig updatedSecurityConfig = this.getSecurityConfig();
         updatedSecurityConfig.setSecurityState(SecurityState.ARMED);
-        this.saveSecurityConfig(updatedSecurityConfig);
-        return this.getSecurityConfig();
+        return this.saveSecurityConfig(updatedSecurityConfig);
     }
 }
