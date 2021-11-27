@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import piandarduinoguy.raspberrypi.securitymsrv.TestUtils;
+import piandarduinoguy.raspberrypi.securitymsrv.data.domain.Base64EncodedImageDto;
 import piandarduinoguy.raspberrypi.securitymsrv.data.domain.Problem;
 import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityConfig;
 import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityState;
@@ -88,10 +89,11 @@ class SecurityControllerSecurityConfigIntegrationTest {
     void canGetAnnotatedImage() throws Exception {
         testUtils.createExpectedAnnotatedImageFile();
 
-        ResponseEntity<String> responseEntity = restTemplate.getForEntity("http://localhost:" + port + "/security/annotated-image", String.class);
+        ResponseEntity<Base64EncodedImageDto> responseEntity = restTemplate.getForEntity("http://localhost:" + port + "/security/annotated-image", Base64EncodedImageDto.class);
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseEntity.getBody()).isEqualToIgnoringCase(testUtils.getExpectedBase64EncodedAnnotatedImage());
+        Base64EncodedImageDto base64EncodedImageDto = responseEntity.getBody();
+        assertThat(base64EncodedImageDto.getBase64EncodedImage()).isEqualToIgnoringCase(testUtils.getExpectedBase64EncodedAnnotatedImage());
 
         testUtils.deleteAnnotatedImage();
     }

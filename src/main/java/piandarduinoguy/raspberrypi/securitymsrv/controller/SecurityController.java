@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import piandarduinoguy.raspberrypi.securitymsrv.data.domain.Base64EncodedImageDto;
 import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityConfig;
 
 @CrossOrigin
@@ -30,7 +31,7 @@ public interface SecurityController {
     }
 
     @GetMapping("annotated-image")
-    default ResponseEntity<String> getAnnotatedImage() {
+    default ResponseEntity<Base64EncodedImageDto> getAnnotatedImage() {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 

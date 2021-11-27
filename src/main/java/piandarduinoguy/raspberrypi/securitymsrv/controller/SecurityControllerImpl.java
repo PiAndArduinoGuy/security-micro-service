@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import piandarduinoguy.raspberrypi.securitymsrv.data.domain.Base64EncodedImageDto;
 import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityConfig;
 import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityState;
 import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityStatus;
@@ -42,13 +43,15 @@ public class SecurityControllerImpl implements SecurityController {
     }
 
     @Override
-    public ResponseEntity<String> getAnnotatedImage() {
-        return new ResponseEntity(securityService.getBase64AnnotatedImage(), HttpStatus.OK);
+    public ResponseEntity<Base64EncodedImageDto> getAnnotatedImage() {
+        Base64EncodedImageDto base64EncodedImageDto = new Base64EncodedImageDto();
+        base64EncodedImageDto.setBase64EncodedImage(securityService.getBase64AnnotatedImage());
+        return new ResponseEntity<>(base64EncodedImageDto, HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<SecurityConfig> silenceAlarm() {
-        return new ResponseEntity(this.securityService.silenceAlarm(), HttpStatus.OK);
+        return new ResponseEntity<>(this.securityService.silenceAlarm(), HttpStatus.OK);
     }
 
     @Override
