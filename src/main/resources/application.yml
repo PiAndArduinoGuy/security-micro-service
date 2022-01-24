@@ -23,7 +23,7 @@ yolo:
 spring:
   rabbitmq:
     port: 5672
-    host: 192.168.3.123
+    host: 192.168.3.158
   cloud:
     stream:
       bindings:

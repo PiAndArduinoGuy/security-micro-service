@@ -1,26 +1,18 @@
 package piandarduinoguy.raspberrypi.securitymsrv;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.stream.messaging.Source;
-import org.springframework.cloud.stream.test.binder.MessageCollector;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Component;
 import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityConfig;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.fail;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -28,12 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class TestUtils {
     @Autowired
     private ObjectMapper objectMapper;
-
-    @Autowired
-    private Source channel;
-
-    @Autowired
-    private MessageCollector messageCollector;
 
     @Value("${resources.base.location}")
     private String resourcesBaseLocation;
@@ -110,18 +96,7 @@ public class TestUtils {
         return FileUtils.readFileToByteArray(sourcesImageFile);
     }
 
-    public void assertExpectedSecurityConfigPublishedOnOutputChannel(SecurityConfig securityConfig) {
-        try{
-            SecurityConfig receivedSecurityConfig = objectMapper.readValue((String) messageCollector.forChannel(channel.output()).poll().getPayload(), SecurityConfig.class);
-            AssertionsForClassTypes.assertThat(receivedSecurityConfig).isNotNull();
-            AssertionsForClassTypes.assertThat(receivedSecurityConfig.getSecurityState()).isEqualTo(securityConfig.getSecurityState());
-            AssertionsForClassTypes.assertThat(receivedSecurityConfig.getSecurityStatus()).isEqualTo(securityConfig.getSecurityStatus());
-        } catch (ClassCastException | JsonProcessingException exception){
-            fail("Received message could not be marshalled to a SecurityConfig type, the message sent might not have been of type SecurityConfig", exception);
-        }
-    }
-
-    public void createExpectedCapturedImageFileFrom(File sourcesImageFile) throws Exception{
+    public void createExpectedCapturedImageFileFrom(File sourcesImageFile) throws Exception {
         byte[] annotatedImageBytes = FileUtils.readFileToByteArray(sourcesImageFile);
         FileUtils.writeByteArrayToFile(this.testTemporaryImageFile, annotatedImageBytes);
     }

@@ -6,8 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.cloud.stream.messaging.Source;
-import org.springframework.cloud.stream.test.binder.MessageCollector;
 import org.springframework.test.context.TestPropertySource;
 import piandarduinoguy.raspberrypi.securitymsrv.TestUtils;
 import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityConfig;
@@ -31,12 +29,6 @@ import static org.mockito.Mockito.verify;
 class SecurityServiceIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
-
-    @Autowired
-    private Source channel;
-
-    @Autowired
-    private MessageCollector messageCollector;
 
     @Autowired
     private TestUtils testUtils;
@@ -70,22 +62,6 @@ class SecurityServiceIntegrationTest {
         testUtils.assertThatNoAnnotatedImageCreated();
 
         testUtils.deleteTestTemporaryImageFile();
-    }
-
-    @Test
-    @DisplayName("Given a SecurityConfig object to save " +
-            "when saveSecurityConfig called " +
-            "then publish updated SecurityConfig object and returned.")
-    void canPublishUpdatedSecurityConfig() {
-        SecurityConfig securityConfig = new SecurityConfig(SecurityStatus.SAFE, SecurityState.DISARMED);
-
-        SecurityConfig savedSecurityConfig = securityService.saveSecurityConfig(securityConfig);
-        assertThat(savedSecurityConfig.getSecurityState()).isEqualTo(SecurityState.DISARMED);
-        assertThat(savedSecurityConfig.getSecurityStatus()).isEqualTo(SecurityStatus.SAFE);
-
-
-        testUtils.assertExpectedSecurityConfigPublishedOnOutputChannel(securityConfig);
-        testUtils.deleteSecurityConfigFile();
     }
 
     @Test
@@ -180,7 +156,7 @@ class SecurityServiceIntegrationTest {
             verify(securityService).saveSecurityConfig(any());
             assertThat(updatedSecurityConfig.getSecurityState()).isEqualTo(SecurityState.DISARMED);
             assertThat(updatedSecurityConfig.getSecurityStatus()).isEqualTo(SecurityStatus.SAFE);
-        } catch (Exception e){
+        } catch (Exception e) {
             fail(String.format("An exception was thrown of type %s but was not expected.", e.getClass().getSimpleName()));
         } finally {
             testUtils.deleteSecurityConfigFile();
@@ -216,7 +192,7 @@ class SecurityServiceIntegrationTest {
             verify(securityService).saveSecurityConfig(any());
             assertThat(updatedSecurityConfig.getSecurityState()).isEqualTo(SecurityState.DISARMED);
             assertThat(updatedSecurityConfig.getSecurityStatus()).isEqualTo(SecurityStatus.SAFE);
-        } catch (Exception e){
+        } catch (Exception e) {
             fail(String.format("An exception was thrown of type %s but was not expected.", e.getClass().getSimpleName()));
         } finally {
             testUtils.deleteSecurityConfigFile();
