@@ -5,6 +5,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -42,6 +43,9 @@ class SecurityServiceUnitTest {
 
     @SpyBean
     private SecurityService securityService;
+
+    @MockBean
+    private RabbitTemplate rabbitTemplate;
 
     @Autowired
     private TestUtils testUtils;

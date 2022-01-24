@@ -3,9 +3,11 @@ package piandarduinoguy.raspberrypi.securitymsrv.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
@@ -42,6 +44,9 @@ class SecurityControllerSecurityConfigIntegrationTest {
 
     @Autowired
     private TestUtils testUtils;
+
+    @MockBean
+    private RabbitTemplate rabbitTemplate;
 
     private final SecurityConfig existingSecurityConfig = new SecurityConfig(SecurityStatus.BREACHED, SecurityState.DISARMED);
 

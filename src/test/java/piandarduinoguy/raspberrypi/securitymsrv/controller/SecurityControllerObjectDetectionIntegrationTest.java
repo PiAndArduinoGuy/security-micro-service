@@ -5,10 +5,12 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -50,6 +52,9 @@ class SecurityControllerObjectDetectionIntegrationTest {
 
     @SpyBean
     private PersonDetectorService personDetectorService;
+
+    @MockBean
+    private RabbitTemplate rabbitTemplate;
 
     @Autowired
     private TestUtils testUtils;
