@@ -6,7 +6,6 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import piandarduinoguy.raspberrypi.securitymsrv.data.domain.Problem;
-import sun.security.x509.IssuerAlternativeNameExtension;
 
 @ControllerAdvice
 public class SecurityExceptionHandler {
