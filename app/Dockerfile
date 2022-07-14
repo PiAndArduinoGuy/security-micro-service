@@ -18,4 +18,4 @@ COPY --from=builder /security-micro-service/src/main/resources/yolo/yolo.py .
 RUN echo "{\"securityStatus\":\"SAFE\",\"securityState\":\"DISARMED\"}" > security-config.json # initialize the security config file
 RUN apk add --no-cache openjdk8-jre
 RUN apk add --no-cache bash # needed to start interactive exec session with container that uses this image for debug purposes
-CMD ["java", "-jar", "./security-micro-service-20220427.jar"]
+CMD ["java","-agentlib:jdwp=transport=dt_socket,address=18082,server=y,suspend=y", "-jar", "./security-micro-service-20220427.jar"]
