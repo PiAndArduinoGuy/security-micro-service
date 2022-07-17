@@ -1,7 +1,7 @@
 **/resources/yolo/processed_image.jpg
 **/resources/yolo/yolo-coco
 **/.idea
-/target
+**/target
 *.iml
 **/resources/*.jpeg
 **/resources/*.json
