@@ -1,5 +1,6 @@
 **/resources/yolo/processed_image.jpg
 **/resources/yolo/yolo-coco
+**/resources/yolo.tar.gz
 **/.idea
 **/target
 *.iml
