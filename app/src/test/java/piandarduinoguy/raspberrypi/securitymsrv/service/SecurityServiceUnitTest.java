@@ -18,7 +18,6 @@ import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityState;
 import piandarduinoguy.raspberrypi.securitymsrv.data.domain.SecurityStatus;
 import piandarduinoguy.raspberrypi.securitymsrv.exception.ImageFileException;
 import piandarduinoguy.raspberrypi.securitymsrv.exception.SecurityConfigFileException;
-import piandarduinoguy.raspberrypi.securitymsrv.exception.SecurityConfigStateException;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +28,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @SpringBootTest

@@ -5,7 +5,7 @@ server:
 
 resources:
   base:
-    location: "src/main/resources/"
+    location: "./"
 
 new-capture:
     file-name: "new_capture"
@@ -15,7 +15,7 @@ new-capture:
 yolo:
   person-detector:
     base:
-      location: "src/main/resources/yolo/"
+      location: "./yolo"
     threshold:
       confidence: 0.5
       non_maxima_suppression: 0.3
