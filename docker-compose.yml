@@ -1,0 +1,16 @@
+services:
+  app:
+    image: piandarduinoguy/security-micro-service:20220427 # image exists on docker hub
+    ports:
+      - 8082:8082
+      - 18082:18082
+    volumes:
+      - security-micro-service:/security-micro-service/resources
+  rabbitmq:
+    image: rabbitmq:3.8.14-management
+    ports:
+      - 5672:5672
+      - 15672:15672
+volumes:
+  security-micro-service:
+
