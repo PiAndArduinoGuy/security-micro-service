@@ -1,6 +1,6 @@
 services:
   security-micro-service:
-    image: piandarduinoguy/security-micro-service # image exists on docker hub
+    image: piandarduinoguy/security-micro-service:20220427 # image exists on docker hub
     ports:
       - 8082:8082
       - 18082:18082

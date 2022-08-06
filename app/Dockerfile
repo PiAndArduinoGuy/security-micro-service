@@ -1,4 +1,4 @@
-FROM piandarduinoguy/python3-opencv
+FROM piandarduinoguy/python3-opencv:4.5.2
 RUN apt install -y openjdk-8-jre
 WORKDIR /security-micro-service/resources
 RUN echo "{\"securityStatus\":\"SAFE\",\"securityState\":\"DISARMED\"}" > security_config.json # initialize the security config file
