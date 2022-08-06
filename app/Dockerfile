@@ -1,5 +1,4 @@
-# stages defined so that we only carry over what is needed to run the container
-FROM piandarduinoguy/python3-opencv:4.5.2
+FROM piandarduinoguy/python3-opencv
 RUN apt install -y openjdk-8-jre
 WORKDIR /security-micro-service/resources
 RUN echo "{\"securityStatus\":\"SAFE\",\"securityState\":\"DISARMED\"}" > security_config.json # initialize the security config file
