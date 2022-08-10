@@ -3,14 +3,26 @@ services:
     image: piandarduinoguy/security-micro-service # image exists on docker hub
     ports:
       - 8082:8082
-      - 18082:18082
     volumes:
       - security-micro-service:/security-micro-service/resources
+    networks:
+      - security-network
   rabbitmq:
     image: rabbitmq:3.8.14-management
     ports:
       - 5672:5672
       - 15672:15672
+    networks:
+      - security-network
+
 volumes:
   security-micro-service:
+
+networks:
+  security-network:
+    driver: overlay
+    attachable: true
+
+
+
 
