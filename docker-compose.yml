@@ -1,6 +1,6 @@
 services:
   security-micro-service:
-    image: piandarduinoguy/security-micro-service # image exists on docker hub
+    image: piandarduinoguy/security-micro-service:20220813 # image exists on docker hub
     ports:
       - 8082:8082
     volumes:
@@ -20,8 +20,9 @@ volumes:
 
 networks:
   security-network:
+    external: true
+    name: security-network
     driver: overlay
-    attachable: true
 
 
 
