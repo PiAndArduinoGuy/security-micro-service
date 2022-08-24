@@ -18,8 +18,8 @@ services:
     image: piandarduinoguy/control-hub-frontend:20220813
     ports:
       - 8080:8080
-    networks:
-      - security-network
+    environment:
+      SECURITY_MICRO_SERVICE_BASE_URL: http://192.168.3.184:8082/security
 
 volumes:
   security-micro-service:
