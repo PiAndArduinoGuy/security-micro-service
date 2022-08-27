@@ -1,6 +1,6 @@
 services:
   security-micro-service:
-    image: piandarduinoguy/security-micro-service:20220813 # image exists on docker hub
+    image: piandarduinoguy/security-micro-service # image exists on docker hub
     ports:
       - 8082:8082
     volumes:
@@ -17,12 +17,14 @@ services:
       - security-network
     restart: always
   control-hub-frontend:
-    image: piandarduinoguy/control-hub-frontend:20220813
+    image: piandarduinoguy/control-hub-frontend
     ports:
       - 8080:8080
     networks:
       - security-network
     restart: always
+    environment:
+      SECURITY_MICRO_SERVICE_BASE_URL: http://192.168.3.184:8082/security
 
 volumes:
   security-micro-service:
