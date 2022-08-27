@@ -7,6 +7,7 @@ services:
       - security-micro-service:/security-micro-service/resources
     networks:
       - security-network
+    restart: always
   rabbitmq:
     image: rabbitmq:3.8.14-management
     ports:
@@ -14,12 +15,14 @@ services:
       - 15672:15672
     networks:
       - security-network
+    restart: always
   control-hub-frontend:
     image: piandarduinoguy/control-hub-frontend:20220813
     ports:
       - 8080:8080
     networks:
       - security-network
+    restart: always
 
 volumes:
   security-micro-service:
